@@ -4,6 +4,7 @@ const posts = require('../posts/postDb');
 
 const router = express.Router();
 
+// Add new user
 router.post('/', validateUser, (req, res) => {
   users
     .insert(req.body)
@@ -17,6 +18,7 @@ router.post('/', validateUser, (req, res) => {
     });
 });
 
+// Add new post
 router.post('/:id/posts', [validateUserId, validatePost], (req, res) => {
   const postInfo = { ...req.body, user_id: req.params.id };
   posts
@@ -31,6 +33,7 @@ router.post('/:id/posts', [validateUserId, validatePost], (req, res) => {
     });
 });
 
+// Get all users
 router.get('/', (req, res) => {
   users
     .get()
@@ -46,15 +49,21 @@ router.get('/', (req, res) => {
     });
 });
 
+// Get a specific user
 router.get('/:id', validateUserId, (req, res) => {
   res.json(req.user);
 });
 
+// Get a specific users posts
 router.get('/:id/posts', validateUserId, (req, res) => {
   users
     .getUserPosts(req.params.id)
     .then(post => {
-      res.status(200).json(post);
+      if (post.length > 0) {
+        res.status(200).json(post);
+      } else {
+        res.status(400).json({ message: 'This user has no posts' });
+      }
     })
     .catch(err => {
       res.status(500).json({
@@ -63,6 +72,7 @@ router.get('/:id/posts', validateUserId, (req, res) => {
     });
 });
 
+// Delete a specific user
 router.delete('/:id', validateUserId, (req, res) => {
   users
     .remove(req.user.id)
@@ -76,6 +86,7 @@ router.delete('/:id', validateUserId, (req, res) => {
     });
 });
 
+// Update a specific user
 router.put('/:id', [validateUserId, validateUser], (req, res) => {
   users
     .update(req.params.id, req.body)
