@@ -26,8 +26,8 @@ router.get('/:id', validatePostId, (req, res) => {
 router.delete('/:id', validatePostId, (req, res) => {
   posts
     .remove(req.params.id)
-    .then(post => {
-      res.status(200).json({ message: 'Post deleted succesfully' });
+    .then(() => {
+      res.status(200).json({ message: `Post deleted succesfully` });
     })
     .catch(err => {
       res.status(500).json({
