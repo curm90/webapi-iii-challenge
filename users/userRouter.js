@@ -3,7 +3,18 @@ const users = require('./userDb');
 
 const router = express.Router();
 
-router.post('/', (req, res) => {});
+router.post('/', validateUser, (req, res) => {
+  users
+    .insert(req.body)
+    .then(user => {
+      res.status(201).json(user);
+    })
+    .catch(err => {
+      res
+        .status(500)
+        .json({ message: 'Error adding new user. ' + err.message });
+    });
+});
 
 router.post('/:id/posts', (req, res) => {});
 
@@ -18,7 +29,7 @@ router.get('/', (req, res) => {
     .catch(err => {
       res
         .status(500)
-        .json({ error: 'Error retreiving the users: ' + err.error });
+        .json({ message: 'Error retreiving the users: ' + err.message });
     });
 });
 
@@ -32,9 +43,33 @@ router.put('/:id', (req, res) => {});
 
 //custom middleware
 
-function validateUserId(req, res, next) {}
+function validateUserId(req, res, next) {
+  users
+    .getById(req.params.id)
+    .then(user => {
+      if (user) {
+        req.user = user;
+        next();
+      } else {
+        res.status(404).json({ message: 'User id does not exist.' });
+      }
+    })
+    .catch(err => {
+      res
+        .status(500)
+        .json({ error: 'Something terrible happened: ' + err.error });
+    });
+}
 
-function validateUser(req, res, next) {}
+function validateUser(req, res, next) {
+  if (Object.keys(req.body).length && req.body.name) {
+    next();
+  } else if (Object.keys(req.body).length === 0) {
+    res.status(400).json({ message: 'missing user data' });
+  } else {
+    res.status(400).json({ message: 'missing required name field' });
+  }
+}
 
 function validatePost(req, res, next) {}
 

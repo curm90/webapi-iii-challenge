@@ -11,10 +11,17 @@ server.get('/', (req, res) => {
   res.send(`<h2>Let's write some middleware!</h2>`);
 });
 
-server.use('/api/users', userRouter);
+server.use('/api/users', logger, userRouter);
 
 //custom middleware
-
-function logger(req, res, next) {}
+function logger(req, res, next) {
+  const { method, url } = req;
+  console.log({
+    method,
+    url,
+    timeStamp: Date.now()
+  });
+  next();
+}
 
 module.exports = server;
