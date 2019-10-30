@@ -38,9 +38,16 @@ router.get('/', (req, res) => {
   users
     .get()
     .then(usersList => {
-      if (usersList) {
-        res.status(200).json(usersList);
-      }
+      const usersPostsPromise = usersList.map(user =>
+        users.getUserPosts(user.id)
+      );
+      Promise.all(usersPostsPromise).then(userPosts => {
+        const usersWithPosts = usersList.map((user, i) => ({
+          ...user,
+          posts: userPosts[i]
+        }));
+        res.status(200).json(usersWithPosts);
+      });
     })
     .catch(err => {
       res
