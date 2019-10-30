@@ -37,9 +37,31 @@ router.get('/:id', validateUserId, (req, res) => {
   res.json(req.user);
 });
 
-router.get('/:id/posts', (req, res) => {});
+router.get('/:id/posts', validateUserId, (req, res) => {
+  users
+    .getUserPosts(req.params.id)
+    .then(post => {
+      res.status(200).json(post);
+    })
+    .catch(err => {
+      res.status(500).json({
+        message: 'Your request could not be processed. ' + err.message
+      });
+    });
+});
 
-router.delete('/:id', (req, res) => {});
+router.delete('/:id', validateUserId, (req, res) => {
+  users
+    .remove(req.user.id)
+    .then(() => {
+      res.status(200).json({ message: `user was deleted succesfully` });
+    })
+    .catch(err => {
+      res
+        .status(500)
+        .json({ message: 'User could not be deleted. ' + err.message });
+    });
+});
 
 router.put('/:id', (req, res) => {});
 
@@ -73,6 +95,14 @@ function validateUser(req, res, next) {
   }
 }
 
-function validatePost(req, res, next) {}
+function validatePost(req, res, next) {
+  if (Object.keys(req.body).length) {
+    next();
+  } else if (Object.keys(req.body).length === 0) {
+    res.status(400).json({ message: 'missing post data' });
+  } else {
+    res.status(400).json({ message: 'missing required text field' });
+  }
+}
 
 module.exports = router;

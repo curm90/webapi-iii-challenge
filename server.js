@@ -15,10 +15,10 @@ server.use('/api/users', logger, userRouter);
 
 //custom middleware
 function logger(req, res, next) {
-  const { method, url } = req;
+  const { method, originalUrl } = req;
   console.log({
     method,
-    url,
+    originalUrl,
     timeStamp: Date.now()
   });
   next();
